@@ -2,5 +2,5 @@
 
 ## Description
 
-![](/img/export-grade-des.png)
+![](/cryptohack/img/export-grade-des.png)
 
