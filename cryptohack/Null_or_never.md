@@ -1,0 +1,53 @@
+# Null or never
+## Description 
+In [RSA challenges](https://cryptohack.org/challenges/rsa/)
+## My solution
+Looking at the code in `pad_encrypt.py`, we can see that the real flag only has 43 bytes, followed by 57 null bytes after padding, which mean $M = m. 2^{57.8} $\
+We have $C \equiv M^3 \equiv m^3 . 2^{57.8.3} ({mod} N) $. We then calculate $c \equiv m^3 \equiv \frac{C}{2^{1368}} ({mod} N)$ (computable because $2^{1368}$ and $N$ are coprime).
+Since $m$ has 43 bytes, $m^3$ has around 129 bytes, while N has $\frac{1024}{8} = 128$ bytes. So $m^3 = k.n + c$ with a small $k$. We iterate $k$ and check for perfect cube and find $m$.
+```
+from Crypto.Util.number import long_to_bytes, inverse
+import gmpy2
+N = 95341235345618011251857577682324351171197688101180707030749869409235726634345899397258784261937590128088284421816891826202978052640992678267974129629670862991769812330793126662251062120518795878693122854189330426777286315442926939843468730196970939951374889986320771714519309125434348512571864406646232154103
+C = 63476139027102349822147098087901756023488558030079225358836870725611623045683759473454129221778690683914555720975250395929721681009556415292257804239149809875424000027362678341633901036035522299395660255954384685936351041718040558055860508481512479599089561391846007771856837130233678763953257086620228436828
+e = 3
+inv=inverse(pow(2,1368,N),N)
+
+c = (C * inv) % N
+    
+for k in range(1000):
+    target = c + k * N
+    m, is_exact = gmpy2.iroot(target, 3)    
+    if is_exact:
+        msg = long_to_bytes(m)
+        print(msg)
+        break
+    
+```
+```
+b'crypto{n0n_574nd4rd_p4d_c0n51d3r3d_h4rmful}'
+```
+Well this approach only works when we pad with null bytes.
+## Another solution 
+Let the flag be in the form `crypto{X}` with X is a string of 35 bytes.\
+Rewrite `M = long_to_bytes(crypto{('x\00')*35}('x\00')*57) + long_to_bytes(X) * 2^(8 * 58)`\
+Let $f(x) = (2^{464}. x + a )^3 -c$ in $Z_n[x]$. (let a be the knowntext)\
+Implement Coppersmith Attack and get the flag:
+```
+from Crypto.Util.number import *
+from sage.all import *
+import gmpy2
+known = b'crypto{' + b'\x00'*35 + b'}' + b'\x00'*57
+known_int = bytes_to_long(known)
+N=95341235345618011251857577682324351171197688101180707030749869409235726634345899397258784261937590128088284421816891826202978052640992678267974129629670862991769812330793126662251062120518795878693122854189330426777286315442926939843468730196970939951374889986320771714519309125434348512571864406646232154103
+c=63476139027102349822147098087901756023488558030079225358836870725611623045683759473454129221778690683914555720975250395929721681009556415292257804239149809875424000027362678341633901036035522299395660255954384685936351041718040558055860508481512479599089561391846007771856837130233678763953257086620228436828
+e=3
+P.<x> = PolynomialRing(Zmod(N))
+f=((2^8)^58*x + known_int)^3 - c
+f=f.monic()
+roots = f.small_roots(X=2^(8*35))
+print(b'crypto{' + long_to_bytes(int(roots[0]))+ b'}')
+```
+
+
+
