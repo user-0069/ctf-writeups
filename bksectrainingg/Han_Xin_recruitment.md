@@ -1,5 +1,5 @@
 ## Description
-nc 103.77.175.40 7011
+`nc 103.77.175.40 7011`\
 [chall.py](https://training.bksec.vn/apiv2/files/local/P9CZUEu9gsYZDXMRi5FLc?iat=1770628200&sig=JH8NOF7qVqcVazNha3O3HXXlFZZGaCfOQqTzDjwLnU0)
 ## My solution
 Note that e=5 for every request we make, maybe we should use Hastad's Broadcast Attack. Take 5 different $(c_i,n_i)$ from the server. 
