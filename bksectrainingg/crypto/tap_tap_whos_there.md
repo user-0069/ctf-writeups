@@ -4,7 +4,7 @@
 ## My solution
 We can easily figure out the `taps` by bruteforce all posible tuples, and double-check with the output. Denote `taps` as $[i_0,i_1,i_2,i_3]$, we have: 
 $s_{i_0} \bigoplus s_{i_1} \bigoplus s_{i_2} \bigoplus s_{i_3}=s_{new}$, which is equivalent to: $s_{i_0}=s_{i_1} \bigoplus s_{i_2} \bigoplus s_{i_3}\bigoplus s_{new}$. 
-Thats mean we can recover the popped bits from the current state:
+Thats mean we can recover the popped bits from the current state knowing `taps`:
 ```
 n=29*8
 taps=[0,0,0,0]
