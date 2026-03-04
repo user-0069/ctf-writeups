@@ -82,5 +82,9 @@ print(key)
 ```
 THINHDEPTRAI
 ```
+Enter the key, defeat the monster, and the flag is:
+
+<img width="677" height="324" alt="image" src="https://github.com/user-attachments/assets/9ef80bcf-8283-4034-b135-9f3600e5d494" />
+
 
 
