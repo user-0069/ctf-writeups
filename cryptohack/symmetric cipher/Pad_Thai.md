@@ -95,7 +95,7 @@ for i in reversed(range(16)):
         if res["result"] == True:
             
             I[i] = j ^ val_pad 
-            print(f"Found byte {i}: hex={hex(j)}, I={hex(I[i])}, P={hex(I[i] ^ iv_list[i])}")
+            print(f"Found byte {i}: hex={hex(j)}, I={hex(I[i])}, P={hex(I[i] ^ c1_list[i])}")
             break
 p2 = bytes([I[idx] ^ c1_list[idx] for idx in range(16)])
 print(p1+p2)
