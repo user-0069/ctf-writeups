@@ -60,6 +60,7 @@ for i in reversed(range(16)):
 
 I=[0]*16
 m2_list=[]
+prev=""
 for i in reversed(range(16)):
     val_pad=16-i 
     temp=c1_list[:]
@@ -67,7 +68,7 @@ for i in reversed(range(16)):
         temp[j] = I[j] ^ val_pad
     if i == 15:
         temp[14] ^= 1
-    for j in prev+pot:
+    for j in prev+pot: # speedup with multiple padding char
         char=c1_list[i]^ord(j)^val_pad
         temp[i]=char
         lmao=checkpad(hexify(c2_list),hexify(m1_list),hexify(temp))
