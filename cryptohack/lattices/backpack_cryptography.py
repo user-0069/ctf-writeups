@@ -32,3 +32,6 @@ for i in range(len(a)-1,-1,-1):
         msg+=1<<i
         new_enc-=a[i]
 print(long_to_bytes(msg))
+# this solution is specified for Merkle Hellman cryptosystem
+# there is an esier and more general approach to this problem:
+# applying coster to make "0 or 1" problem become "-1 or 1" (more balanced), SVP will return some vecctor that is full of -1 and 1
