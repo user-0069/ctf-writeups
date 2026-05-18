@@ -4,7 +4,7 @@ from Crypto.Util.number import bytes_to_long, long_to_bytes
 from pwn import *
 io=remote("socket.cryptohack.org", 13392)
 import json
-context.log_level='debug'
+#context.log_level='debug'
 def sendjson(data):
     io.sendline(json.dumps(data))
 def jsonrecv():
