@@ -4,7 +4,7 @@ from Crypto.Util.number import bytes_to_long, long_to_bytes
 from pwn import *
 io=remote("socket.cryptohack.org", 13405)
 import json
-context.log_level='debug'
+#context.log_level='debug'
 # 2^128 collision protection!
 BLOCK_SIZE = 32
 
