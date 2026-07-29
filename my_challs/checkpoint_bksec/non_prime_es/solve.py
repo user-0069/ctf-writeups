@@ -3,9 +3,7 @@ import math
 from Crypto.Util.number import long_to_bytes
 import gmpy2
 
-# ==========================================
-# AUXILIARY MATHEMATICAL FUNCTIONS
-# ==========================================
+
 def egcd(a, b):
     """Extended Euclidean Algorithm: Returns (gcd, x, y) such that a*x + b*y = gcd"""
     if a == 0:
@@ -21,15 +19,13 @@ def mod_pow_neg(base, exp, mod):
         exp = -exp
     return pow(base, exp, mod)
 
-# ==========================================
-# MAIN SOLVER
-# ==========================================
+
 def solve():
     print("[*] Reading data from challenge_data.json...")
     with open("challenge_data.json", "r") as f:
         data = json.load(f)
 
-    # Step 1: Parse and group by N
+    
     grouped_data = {}
     for item in data:
         N = int(item["N"], 16)
@@ -42,9 +38,6 @@ def solve():
 
     print(f"[*] Parsed {len(data)} tuples, found {len(grouped_data)} unique moduli N.")
 
-    # ==========================================
-    # PHASE 1: COMMON MODULUS ATTACK (GENERALIZED)
-    # ==========================================
     clean_tuples = []
     
     print("[*] Phase 1: Common Modulus Decryption (supports n-tuples)...")
@@ -66,9 +59,7 @@ def solve():
 
     print(f"[*] Phase 1 Complete. Extracted into {len(clean_tuples)} base tuples.")
 
-    # ==========================================
-    # PHASE 2: LCM EXPONENTIATION
-    # ==========================================
+    
     # Calculate the Least Common Multiple (LCM) of all e's to use as the Target E
     TARGET_E = 1
     for _, e, _ in clean_tuples:
@@ -81,15 +72,12 @@ def solve():
     
     for N, e, c in clean_tuples:
         multiplier = TARGET_E // e
-        # Raise the exponent: c_new = c^(TARGET_E / e) mod N
         c_pushed = pow(c, multiplier, N)
         
         C_list.append(c_pushed)
         N_list.append(N)
 
-    # ==========================================
-    # PHASE 3: Hastad Broadcast Attack
-    # ==========================================
+   #hastad broadcast attack
     print("[*] Phase 3: Calculating CRT... (may take a few seconds)")
     N_tot = 1
     for n in N_list:
@@ -103,7 +91,6 @@ def solve():
 
     print(f"[*] CRT Complete. Calculating {TARGET_E}-th root...")
     
-    # Use gmpy2 to safely compute the e-th root
     m, is_exact = gmpy2.iroot(C_tot, TARGET_E)
     
     if is_exact:
