@@ -4,9 +4,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import ast
 
-# ==========================================
-# 1. PARSE THE CHALLENGE DATA
-# ==========================================
+
 print("[*] Loading data...")
 with open("output.txt", "r") as f:
     lines = f.readlines()
@@ -18,9 +16,7 @@ with open("output.txt", "r") as f:
 M = len(b)
 N = len(A[0])
 
-# ==========================================
-# 2. POHLIG-HELLMAN DISCRETE LOGS 
-# ==========================================
+
 print("[*] Setting up GF(p)...")
 F = GF(p)
 
@@ -29,23 +25,20 @@ d = (p - 1) // k
 
 print(f"[*] Target log for noise (d) = {d}")
 
-# 1. Start with any primitive root
+# start with any primitive root
 g_any = F.primitive_element()
 X_any = discrete_log(F(2), g_any)
 
-# 2. Find the base multiplier 'c'
 c = X_any // d
 q = (p - 1) // d
 
-# 3. Find an exponent 'm' that is coprime to p-1
 m = c
 while gcd(m, p - 1) != 1:
     m += q
 
-# 4. Generate the perfect primitive root
+# generate the perfect primitive root
 g = g_any ** m
 
-# Verify it worked!
 X = discrete_log(F(2), g)
 print(f"[*] Perfect generator found!")
 
@@ -58,9 +51,7 @@ for i in range(M):
 
 b_log = [discrete_log(F(val), g) for val in b]
 
-# ==========================================
-# 3. LATTICE REDUCTION (ISOLATING NOISE)
-# ==========================================
+
 print("[*] Setting up LWE Lattice directly mod p-1...")
 
 M_mat = matrix(ZZ, M, N)
@@ -83,10 +74,9 @@ for i in range(N):
     for j in range(M):
         G[M + i, j] = M_mat[j, i]
 
-print("[*] Reducing basis via Hermite Normal Form...")
+#reduce the basis by hermite normal form
 B = G.hermite_form()[:M, :]
 
-print("[*] Applying Kannan's Embedding...")
 Z = matrix(ZZ, M + 1, M + 1)
 
 for i in range(M):
@@ -104,10 +94,8 @@ L = Z.LLL()
 noise = None
 for row in L:
     if abs(row[-1]) == 1:
-        # The noise values in the lattice are now exactly 0 or d
         if all(abs(val) <= d for val in row[:-1]):
             multiplier = -1 if row[-1] == 1 else 1
-            # Divide by d to get back the binary 0/1 array for the next step!
             noise = [(val * multiplier) // d for val in row[:-1]]
             break
 
@@ -117,15 +105,11 @@ if noise is None:
 
 print(f"[+] Binary noise vector recovered: {noise[:15]}...")
 
-# ==========================================
-# 4. RECOVER SECRET & DECRYPT (Smith Normal Form)
-# ==========================================
-print("[*] Solving noiseless system using Smith Normal Form...")
+
+print("[*] Solving noiseless system ...")
 
 target_ZZ = vector(ZZ, M)
 for i in range(M):
-    # noise[i] is 0 or -1. abs() forces it to 0 or 1.
-    # Multiply by d to reconstruct the exact added noise e_i.
     clean_val = b_log[i] - (d * abs(noise[i]))
     target_ZZ[i] = int(clean_val % (p - 1))
 
@@ -134,9 +118,7 @@ for i in range(M):
     for j in range(N):
         A_ZZ[i, j] = int(A_log[i][j])
 
-# Decompose A into U * A * V = D
-# This gives A = U^-1 * D * V^-1
-print("[*] Computing SNF decomposition...")
+#find smith normal form
 D, U, V = A_ZZ.smith_form()
 
 # We want A * s = target (mod p-1)
@@ -144,7 +126,6 @@ D, U, V = A_ZZ.smith_form()
 U_target = (U * target_ZZ) % (p - 1)
 y = vector(ZZ, N)
 
-print("[*] Solving independent diagonal equations...")
 for i in range(N):
     d_val = int(D[i, i])
     t_val = int(U_target[i])
@@ -152,7 +133,6 @@ for i in range(N):
     if d_val == 0:
         continue
         
-    # Safely solve d_val * y[i] == t_val mod (p-1) by dividing out the GCD
     g = gcd(d_val, p - 1)
     modulus = (p - 1) // g
     
