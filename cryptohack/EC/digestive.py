@@ -5,7 +5,7 @@ import urllib.parse
 BASE_URL = "https://web.cryptohack.org" 
 #the hashfunc was supposed to be SHA256, but the server return raw message instead.
 #the raw message could be long compared to the SHA256 output,
-#so generally, the server will truncated just the first bytes
+#so generally, the server will truncate and just take the first bytes
 #therefore, hashfunc(a)=hashfunc(b) when a and b shares a long enough common prefix
 #so the signature of {"admin": false, "username": "bob"} 
 # can be used to sign any message that starts with the same prefix
